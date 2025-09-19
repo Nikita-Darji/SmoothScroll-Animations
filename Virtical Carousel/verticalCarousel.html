@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smooth</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            height: 100%;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        .stacked-content {
+            position: relative;
+        }
+        .stack {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 100%;
+            background-size: cover;
+            background-position: center;
+            will-change: transform, opacity;
+            transition: opacity 0.3s ease;
+        }
+        .bg-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            /* ensure it's behind any content */
+            pointer-events: none;
+        }
+        .stack::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            opacity: var(--overlay-opacity, 0);
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .section-text {
+            margin: 0em;
+            text-transform: uppercase;
+            position: relative;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%);
+            transform-origin: center;
+            font-size: clamp(0.4rem, 1vw, 1rem);
+            font-weight: 600;
+            color: white;
+            opacity: 1;
+            scale: 1;
+            z-index: 10;
+            text-align: center;
+            text-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            /* transition: transform 0.6s ease, opacity 0.6s ease; */
+        }
+
+        .text-wrapper {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -30%);
+            z-index: 100;
+            pointer-events: none;
+        }       
+    </style>
+
+</head>
+
+<body>
+    <div class="text-wrapper">
+        <div class="section-text">Full Blossom</div>
+        <div class="section-text">Dramatic</div>
+        <div class="section-text">Blossom</div>
+        <div class="section-text">Drama</div>
+        <div class="section-text">Shake hands with Nature</div>
+    </div>
+
+    <div class="stacked-container">
+        <div class="stacked-content">
+
+            <section class="stack"
+                style="background-image: url('images&vedios/7379a22bb8571d840637e2d53676534a3f5f5061-1530x2010.avif');">
+            </section>
+
+            <section class="stack">
+                <video autoplay muted loop playsinline class="bg-video">
+                    <source src="images&vedios/3cf6ae151a58304d8a89b3ae9fbe0187902307b0.mp4" type="video/mp4">
+                </video>
+            </section>
+            <section class="stack">
+                <video autoplay muted loop playsinline class="bg-video">
+                    <source src="images&vedios/d416e8ad2226d6ff1b1d84ee95364d4d785b7859.mp4" type="video/mp4">
+                </video>
+            </section>
+            <section class="stack"
+                style="background-image: url('images&vedios/ce2f9e214c90a92b719e36d0c3c001c7a0845530-1500x1002.avif');">
+            </section>
+            <section class="stack">
+                <video autoplay muted loop playsinline class="bg-video">
+                    <source src="images&vedios/a7b4ef5cdac107e36e2c83581f23e40e2989b1a1.mp4" type="video/mp4">
+                </video>
+            </section>
+        </div>
+    </div>
+    <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+    <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
+    <script src="https://assets.codepen.io/16327/ScrollSmoother.min.js"></script>
+
+    <script>
+
+        gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+        ScrollSmoother.create({
+            wrapper: document.querySelector(".stacked-container"),
+            content: document.querySelector(".stacked-content"),
+            smooth: 1.2,         
+            effects: true         
+        });
+        document.querySelectorAll(".stack").forEach((section) => {
+            ScrollTrigger.create({
+                trigger: section,
+                start: "top top",
+                end: "bottom top",
+                scrub: true,
+                pin: true, 
+                pinSpacing: false 
+            });
+        });
+        document.querySelectorAll(".stack").forEach((section, i, all) => {
+
+            if (i === all.length - 1) return;
+
+            gsap.to(section, {
+
+                scrollTrigger: {
+                    scale: 0.9,
+                    opacity: 0.8,
+                    trigger: section,
+                    start: "top center",
+                    end: "bottom center",
+                    scrub: 0.5,
+                    ease: "power2.out",
+                    onUpdate: (self) => {
+                        section.style.setProperty('--overlay-opacity', (self.progress * 0.6).toFixed(2));
+                    }
+                }
+            });
+
+        });
+        const texts = document.querySelectorAll(".section-text");
+        const sections = document.querySelectorAll(".stack");
+
+        texts.forEach((text, i) => {
+            const section = sections[i];
+            if (!section || !text) return;
+
+            texts.forEach((text, i) => {
+                const section = sections[i];
+                if (!section || !text) return;
+
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top bottom",    
+                        end: "center top",      
+                        scrub: true,
+                    }
+                });
+
+                tl.fromTo(text,
+                    { scale: 0.8, opacity: 1 ,y:100},
+                    {
+                        scale: 7,
+                        opacity: 1,
+                        ease: "power2.out",
+                        y:0
+                    
+                    }
+                ).to(text, {
+                    scale: 0.8,
+                    opacity: 1,
+                    ease: "power2.in",
+                    y:-100
+         
+                });
+            });
+        });
+    </script>
+</body>
